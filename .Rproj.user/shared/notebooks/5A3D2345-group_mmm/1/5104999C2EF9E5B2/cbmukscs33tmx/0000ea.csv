@@ -1,0 +1,5 @@
+"0","# View time plot of the MYL return price"
+"0"," ggplot(data = transformed_data.returns, "
+"0","        aes(x=as.Date(returns$date), y=value, group=1) ) + "
+"0","        geom_line(aes(y=returns$MYL, col='MYL'), size = 1, color='deeppink') + "
+"0","        labs(x = ""Time"", y = ""Daily return series"")"

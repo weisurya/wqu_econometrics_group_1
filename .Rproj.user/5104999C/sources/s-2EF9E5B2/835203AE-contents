@@ -1,0 +1,180 @@
+---
+title: "3M - 10 Years of Historical Price 01/09/2008 ~ 01/09/2018"
+output: html_notebook
+---
+
+SECTION 0 - OBTAIN AND TRANSFORMING DATA
+
+3M CSV dataset
+
+```{r}
+dataset_MMM <- read.csv("MMM.csv")
+head(dataset_MMM)
+summary(dataset_MMM)
+```
+
+C CSV dataset
+```{r}
+dataset_C <- read.csv("C.csv")
+head(dataset_C)
+summary(dataset_C)
+```
+
+PG CSV dataset
+```{r}
+dataset_PG <- read.csv("PG.csv")
+head(dataset_PG)
+summary(dataset_PG)
+```
+
+GOOG CSV dataset
+```{r}
+dataset_GOOG <- read.csv("GOOG.csv")
+head(dataset_GOOG)
+summary(dataset_GOOG)
+```
+
+MYL CSV dataset
+```{r}
+dataset_MYL <- read.csv("MYL.csv")
+head(dataset_MYL)
+summary(dataset_MYL)
+```
+
+
+Retrieve the daily closing price
+```{r}
+# Initialize date column for analyze purpose
+# close_price$date = dataset_MMM$Date
+
+close_price$MMM = dataset_MMM$Close
+close_price$C = dataset_C$Close
+close_price$PG = dataset_PG$Close
+close_price$GOOG = dataset_GOOG$Close
+close_price$MYL = dataset_MYL$Close
+
+#Show several example of each asset's close price
+head(close_price$MMM)
+head(close_price$C)
+head(close_price$PG)
+head(close_price$GOOG)
+head(close_price$MYL)
+```
+
+Construct the log daily returns of each asset
+```{r}
+# Initialize date column for analyze purpose
+returns$MMM = diff(log(close_price$MMM), lag = 1)
+returns$C = diff(log(close_price$C), lag = 1)
+returns$PG = diff(log(close_price$PG), lag = 1)
+returns$GOOG = diff(log(close_price$GOOG), lag = 1)
+returns$MYL = diff(log(close_price$MYL), lag = 1)
+
+#Show several example of each asset's close price
+head(returns$MMM)
+head(returns$C)
+head(returns$PG)
+head(returns$GOOG)
+head(returns$MYL)
+```
+
+Insert the result into data frame format
+```{r}
+transformed_data.close <- data.frame(close_price$date, close_price$MMM, close_price$C, close_price$PG, close_price$GOOG, close_price$MYL)
+str(transformed_data.close)
+
+n <- nrow(transformed_data.close)
+
+returns$date <- returns$date[2:n]
+
+transformed_data.returns <- data.frame(returns$date, returns$MMM, returns$C, returns$PG, returns$GOOG, returns$MYL)
+str(transformed_data.returns)
+```
+
+
+SECTION 1 - EXPLORATORY DATA ANALYSIS
+
+Generate a time plot series of closing price on the same graph
+```{r}
+# Load necessary packages
+library(tidyverse)
+library(ggplot2)
+
+
+# View time plot of the closing price
+ ggplot(data = transformed_data.close, 
+        aes(x=as.Date(close_price$date), y=value, group=1) ) + 
+        geom_line(aes(y=close_price$MMM, col='3M'), size = 1) + 
+        geom_line(aes(y=close_price$C, col='C'), size = 1) + 
+        geom_line(aes(y=close_price$PG, col='PG'), size = 1) + 
+        geom_line(aes(y=close_price$GOOG, col='GOOG'), size = 1) + 
+        geom_line(aes(y=close_price$MYL, col='MYL'), size = 1) + 
+        labs(x = "Time", y = "Daily closing price")
+```
+
+Discussion:
+(Akmal)
+<type here>
+
+(Mark)
+<type here>
+
+(Sudheer)
+<type here>
+
+(Surya)
+By looking at the daily closing price in 10 years from 2008 to 2018, I could see that the growth of the close price for GOOG (Alphabet Inc.) was positively growth over time. Initially, C (Citigroup Inc.) has a similar close price in 2008. However, their got a negative trend from early 2008 to mid 2008 which made them stuck for years ahead. Interestingly, even though the MMM (3M Company)'s performance was overshadowed with GOOG, they enjoyed quite a positive trend. The 3 others assets have a similar stagnant closing price over time.
+
+
+Generate a time plot series of return series on the same graph
+```{r}
+# View time plot of the 3M return price
+ ggplot(data = transformed_data.returns, 
+        aes(x=as.Date(returns$date), y=value, group=1) ) + 
+        geom_line(aes(y=returns$MMM, col='3M'), size = 1, color='darkblue') + 
+        labs(x = "Time", y = "Daily return series")
+
+# View time plot of the C return price
+ ggplot(data = transformed_data.returns, 
+        aes(x=as.Date(returns$date), y=value, group=1) ) + 
+        geom_line(aes(y=returns$C, col='C'), size = 1, color='darkred') + 
+        labs(x = "Time", y = "Daily return series")
+
+# View time plot of the GOOG return price
+ ggplot(data = transformed_data.returns, 
+        aes(x=as.Date(returns$date), y=value, group=1) ) + 
+        geom_line(aes(y=returns$GOOG, col='GOOG'), size = 1, color='yellowgreen') + 
+        labs(x = "Time", y = "Daily return series")
+
+# View time plot of the MYL return price
+ ggplot(data = transformed_data.returns, 
+        aes(x=as.Date(returns$date), y=value, group=1) ) + 
+        geom_line(aes(y=returns$MYL, col='MYL'), size = 1, color='deeppink') + 
+        labs(x = "Time", y = "Daily return series")
+
+# View time plot of the PG return price
+ ggplot(data = transformed_data.returns, 
+        aes(x=as.Date(returns$date), y=value, group=1) ) + 
+        geom_line(aes(y=returns$PG, col='PG'), size = 1, color='blueviolet') + 
+        labs(x = "Time", y = "Daily return series")
+```
+
+Discussion:
+Similarities
+<type here>
+
+Difference
+- MMM (Surya)
+The average value of 3M asset over 10 years was quite stable where the mean of log return is almost zero. However, the volatility becomes larger for quite a long time at the end of 2008 and at the end of 2011; for a short time at the end of 2015 and mid 2017.
+
+- C
+<type here>
+
+- GOOG
+<type here>
+
+- MYL
+<type here>
+
+- PG
+<type here>
