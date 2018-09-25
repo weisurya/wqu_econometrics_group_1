@@ -1,2 +1,0 @@
-"0","dataset_GOOG <- read.csv(""GOOG.csv"")"
-"0","head(dataset_GOOG)"

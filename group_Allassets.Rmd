@@ -113,7 +113,7 @@ library(ggplot2)
         geom_line(aes(y=close_price$PG, col='PG'), size = 1) + 
         geom_line(aes(y=close_price$GOOG, col='GOOG'), size = 1) + 
         geom_line(aes(y=close_price$MYL, col='MYL'), size = 1) + 
-        labs(x = "Time", y = "Daily adjusted closing price")
+        labs(x = "Time", y = "Daily closing price")
 ```
 
 Discussion:
@@ -127,6 +127,7 @@ Discussion:
 <type here>
 
 (Surya)
+
 By looking at the daily closing price in 10 years from 2008 to 2018, I could see that the growth of the close price for GOOG (Alphabet Inc.) was positively growth over time. Initially, C (Citigroup Inc.) has a similar close price in 2008. However, their got a negative trend from early 2008 to mid 2008 which made them stuck for years ahead. Interestingly, even though the MMM (3M Company)'s performance was overshadowed with GOOG, they enjoyed quite a positive trend. The 3 others assets have a similar stagnant closing price over time.
 
 
@@ -165,10 +166,12 @@ Generate a time plot series of return series
 
 Discussion:
 Similarities
+
 The average value of all assets over 10 years was quite stable where the mean of log return is almost zero.
 
 Difference
 - MMM (Surya)
+
 The average value of 3M asset over 10 years was quite stable where the mean of log return is almost zero. However, the volatility becomes larger for quite a long time at the end of 2008 and at the end of 2011; for a short time at the end of 2015 and mid 2017.
 
 - C
@@ -226,7 +229,8 @@ Similarities
 
 Difference
 - MMM (Surya)
-There is a slight different in the left and left side which the density is quite lower than the right side. Thus, we could say that the data doesn't normally distributed. The kernel density has a higher kurtosis which result in much longer than normal tails of the density
+
+There is a slight different in the left and left side which the density is quite lower than the right side. Thus, we could say that the data doesn't normally distributed. The kernel density has a higher kurtosis which result in much longer than normal tails of the density.
 
 - C
 <type here>
@@ -395,6 +399,7 @@ Similarities
 
 Difference
 - MMM (Surya)
+
 In this full autocorrelation, the spike was quite stable  on each lag, where it barely decreased. Because the spike has a value that is significantly different from zero, it becomes the evidence of autocorrelation. It also means when the close price of MMM stock rises, it tends to continue rising and vise versa. It also means that this is a non-stationary series because it is decaying.
 
 The truncated autocorrelation also shows quite a similar result with the full autocorrelation which reinforced my argument that the MMM asset is quite stable over time.
@@ -450,7 +455,8 @@ Similarities
 
 Difference
 - MMM (Surya)
-From the full autocorrelation and the truncated autocorrelation of MMM returns price, there is no significant different of the result. The impact on every lag was quite weak, which if between -0.1~0.1. However, I could see that the highest peak is at around lag 1.9 and the lowest one at around lag 0.1
+
+Both full and truncated autocorrelation of 3M asset return price shows a similar result that there is a significant lag that we need to focus, especially on 0.1~0.2, 1.5, 1.9, and 2.9 because all of it was below the threshold. However, every lag is almost zero which we could interpret that there is no lag that influence the other lags that could give a significant spike.
 
 - C
 <type here>
@@ -504,7 +510,8 @@ Similarities
 
 Difference
 - MMM (Surya)
-On the squared return of 3M asset, we could see that the progress of each lag was quite stable. There is no extreme increase nor decrease. I also could concluded that MMM stock didn't experience a significant increase or decrease of their price for quite a long time. It's positively stable.
+
+On the squared return of 3M asset squared return price, we could see that the progress of each lag was quite stable. There is no extreme increase nor decrease. I also could concluded that MMM stock didn't experience a significant increase or decrease of their price for quite a long time. It's positively stable.
 
 - C
 <type here>
@@ -558,7 +565,8 @@ Similarities
 
 Difference
 - MMM (Surya)
-From the full partial autocorrelation result, there is no extreme lag
+
+Both full and truncated partial correlation of 3M asset close price shows that there is no lag that exceed the threshold and there is no strong impact from any lag. From here, we could say there this asset is quite stable-- there is no particular lag that could influence the other lags to get a significant spike.
 
 - C
 <type here>
@@ -611,7 +619,8 @@ Similarities
 
 Difference
 - MMM (Surya)
-<type here>
+
+Both full and truncated version show a similar result. Even though the graph shows a spiky lags, we need to focus on the y-range which is between -0.06~0.06. From here, we could say that all lags was almot zero barely significant. 
 
 - C
 <type here>
@@ -664,7 +673,8 @@ Similarities
 
 Difference
 - MMM (Surya)
-<type here>
+
+Both full and truncated version shows a similar result. There are strong lags on the quarter half of the half which suddenly decrease and become stable after that.
 
 - C
 <type here>
@@ -682,137 +692,73 @@ SECTION 2.3 - ARIMA MODEL
 Stationary analysis of the returns series
 ```{r}
 # MMM
-mmm_percentage_change_returns <- ts(transformed_data.returns$returns.MMM, frequency = 12, start = 2008)
+mmm_percentage_change <- ts(transformed_data.returns$returns.MMM, frequency = 12, start = 2008)
+mmm_arma_model <- arma(window(mmm_percentage_change, start = 2008, end = 2018), order = c(12,0,0) )
+summary(mmm_arma_model)
+Box.test(mmm_arma_model$residuals, lag = 12)
 
-mmm_decompose_returns <- stl(mmm_percentage_change_returns, s.window = "periodic")
-mmm_deseasonal_returns <- seasadj(mmm_decompose_returns)
+# Citi
+citi_percentage_change <- ts(transformed_data.returns$returns.C, frequency = 12, start = 2008)
+citi_arma_model <- arma(window(citi_percentage_change, start = 2008, end = 2018), order = c(12,0,0) )
+summary(citi_arma_model)
+Box.test(citi_arma_model$residuals, lag = 12)
 
-mmm_fit_returns <- auto.arima(mmm_deseasonal_returns, seasonal = FALSE)
-mmm_fit_returns
-tsdisplay(residuals(mmm_fit_returns), lag.max = 12, main = "MMM Model Residuals - Returns price")
+# P & G
+pg_percentage_change <- ts(transformed_data.returns$returns.PG, frequency = 12, start = 2008)
+pg_arma_model <- arma(window(pg_percentage_change, start = 2008, end = 2018), order = c(12,0,0) )
+summary(pg_arma_model)
+Box.test(pg_arma_model$residuals, lag = 12)
 
-# C
-c_percentage_change_returns <- ts(transformed_data.returns$returns.C, frequency = 12, start = 2008)
-
-c_decompose_returns <- stl(c_percentage_change_returns, s.window = "periodic")
-c_deseasonal_returns <- seasadj(c_decompose_returns)
-
-c_fit_returns <- auto.arima(c_deseasonal_returns, seasonal = FALSE)
-c_fit_returns
-tsdisplay(residuals(c_fit_returns), lag.max = 12, main = "C Model Residuals - Returns price")
-
-# PG
-pg_percentage_change_returns <- ts(transformed_data.returns$returns.PG, frequency = 12, start = 2008)
-
-pg_decompose_returns <- stl(pg_percentage_change_returns, s.window = "periodic")
-pg_deseasonal_returns <- seasadj(pg_decompose_returns)
-
-pg_fit_returns <- auto.arima(pg_deseasonal_returns, seasonal = FALSE)
-pg_fit_returns
-tsdisplay(residuals(pg_fit_returns), lag.max = 12, main = "PG Model Residuals - Returns price")
-
-# GOOG
-goog_percentage_change_returns <- ts(transformed_data.returns$returns.GOOG, frequency = 12, start = 2008)
-
-goog_decompose_returns <- stl(goog_percentage_change_returns, s.window = "periodic")
-goog_deseasonal_returns <- seasadj(goog_decompose_returns)
-
-goog_fit_returns <- auto.arima(goog_deseasonal_returns, seasonal = FALSE)
-goog_fit_returns
-tsdisplay(residuals(goog_fit_returns), lag.max = 12, main = "GOOG Model Residuals - Returns price")
+# Google
+goog_percentage_change <- ts(transformed_data.returns$returns.GOOG, frequency = 12, start = 2008)
+goog_arma_model <- arma(window(goog_percentage_change, start = 2008, end = 2018), order = c(12,0,0) )
+summary(goog_arma_model)
+Box.test(goog_arma_model$residuals, lag = 12)
 
 # MYL
-myl_percentage_change_returns <- ts(transformed_data.returns$returns.MYL, frequency = 12, start = 2008)
-
-myl_decompose_returns <- stl(myl_percentage_change_returns, s.window = "periodic")
-myl_deseasonal_returns <- seasadj(myl_decompose_returns)
-
-myl_fit_returns <- auto.arima(myl_deseasonal_returns, seasonal = FALSE)
-myl_fit_returns
-tsdisplay(residuals(myl_fit_returns), lag.max = 12, main = "MYL Model Residuals - Returns price")
+myl_percentage_change <- ts(transformed_data.returns$returns.MYL, frequency = 12, start = 2008)
+myl_arma_model <- arma(window(myl_percentage_change, start = 2008, end = 2018), order = c(12,0,0) )
+summary(myl_arma_model)
+Box.test(myl_arma_model$residuals, lag = 12)
 ```
+
 Discussion:
 - MMM (Surya)
-<type here>
-
-- C
-<type here>
-
-- GOOG
-<type here>
-
-- MYL
-<type here>
-
-- PG
 <type here>
 
 Stationary analysis of the square of the returns series
 ```{r}
-# MMM
-mmm_percentage_change_squared_returns <- ts(transformed_data.returns$returns.MMM^2, frequency = 12, start = 2008)
-mmm_decompose_squared_returns <- stl(mmm_percentage_change_squared_returns, s.window = "periodic")
-mmm_deseasonal_squared_returns <- seasadj(mmm_decompose_squared_returns)
+#MMM
+mmm_percentage_change <- ts(transformed_data.returns$returns.MMM^2, frequency = 12, start = 2008)
+mmm_arma_model <- arma(window(mmm_percentage_change, start = 2008, end = 2018), order = c(12,0,0) )
+summary(mmm_arma_model)
+Box.test(mmm_arma_model$residuals, lag = 12)
 
-mmm_fit_squared_returns <- auto.arima(mmm_deseasonal_squared_returns, seasonal = FALSE)
-mmm_fit_squared_returns
-tsdisplay(residuals(mmm_fit_squared_returns), lag.max = 12, main = "MMM Model Residuals - Squared returns price")
+# Citi
+citi_percentage_change <- ts(transformed_data.returns$returns.C^2, frequency = 12, start = 2008)
+citi_arma_model <- arma(window(citi_percentage_change, start = 2008, end = 2018), order = c(12,0,0) )
+summary(citi_arma_model)
+Box.test(citi_arma_model$residuals, lag = 12)
 
+# P & G
+pg_percentage_change <- ts(transformed_data.returns$returns.PG^2, frequency = 12, start = 2008)
+pg_arma_model <- arma(window(pg_percentage_change, start = 2008, end = 2018), order = c(12,0,0) )
+summary(pg_arma_model)
+Box.test(pg_arma_model$residuals, lag = 12)
 
-# C
-c_percentage_change_squared_returns <- ts(transformed_data.returns$returns.C^2, frequency = 12, start = 2008)
-c_decompose_squared_returns <- stl(c_percentage_change_squared_returns, s.window = "periodic")
-c_deseasonal_squared_returns <- seasadj(c_decompose_squared_returns)
-
-c_fit_squared_returns <- auto.arima(c_deseasonal_squared_returns, seasonal = FALSE)
-c_fit_squared_returns
-tsdisplay(residuals(c_fit_squared_returns), lag.max = 12, main = "C Model Residuals - Squared returns price")
-
-
-# GOOG
-goog_percentage_change_squared_returns <- ts(transformed_data.returns$returns.GOOG^2, frequency = 12, start = 2008)
-goog_decompose_squared_returns <- stl(goog_percentage_change_squared_returns, s.window = "periodic")
-goog_deseasonal_squared_returns <- seasadj(goog_decompose_squared_returns)
-
-goog_fit_squared_returns <- auto.arima(goog_deseasonal_squared_returns, seasonal = FALSE)
-goog_fit_squared_returns
-tsdisplay(residuals(goog_fit_squared_returns), lag.max = 12, main = "GOOG Model Residuals - Squared returns price")
-
-
-# PG
-pg_percentage_change_squared_returns <- ts(transformed_data.returns$returns.PG^2, frequency = 12, start = 2008)
-pg_decompose_squared_returns <- stl(pg_percentage_change_squared_returns, s.window = "periodic")
-pg_deseasonal_squared_returns <- seasadj(pg_decompose_squared_returns)
-
-pg_fit_squared_returns <- auto.arima(pg_deseasonal_squared_returns, seasonal = FALSE)
-pg_fit_squared_returns
-tsdisplay(residuals(pg_fit_squared_returns), lag.max = 12, main = "PG Model Residuals - Squared returns price")
-
+# Google
+goog_percentage_change <- ts(transformed_data.returns$returns.GOOG^2, frequency = 12, start = 2008)
+goog_arma_model <- arma(window(goog_percentage_change, start = 2008, end = 2018), order = c(12,0,0) )
+summary(goog_arma_model)
+Box.test(goog_arma_model$residuals, lag = 12)
 
 # MYL
-myl_percentage_change_squared_returns <- ts(transformed_data.returns$returns.MYL^2, frequency = 12, start = 2008)
-myl_decompose_squared_returns <- stl(myl_percentage_change_squared_returns, s.window = "periodic")
-myl_deseasonal_squared_returns <- seasadj(myl_decompose_squared_returns)
-
-myl_fit_squared_returns <- auto.arima(myl_deseasonal_squared_returns, seasonal = FALSE)
-myl_fit_squared_returns
-tsdisplay(residuals(myl_fit_squared_returns), lag.max = 12, main = "MYL Model Residuals - Squared returns price")
-
-
+myl_percentage_change <- ts(transformed_data.returns$returns.MYL^2, frequency = 12, start = 2008)
+myl_arma_model <- arma(window(myl_percentage_change, start = 2008, end = 2018), order = c(12,0,0) )
+summary(myl_arma_model)
+Box.test(myl_arma_model$residuals, lag = 12)
 ```
 
 Discussion:
 - MMM (Surya)
-<type here>
-
-- C
-<type here>
-
-- GOOG
-<type here>
-
-- MYL
-<type here>
-
-- PG
 <type here>

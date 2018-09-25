@@ -1,5 +1,0 @@
-"0","# View time plot of the PG return price"
-"0"," ggplot(data = transformed_data.returns, "
-"0","        aes(x=as.Date(returns$date), y=value, group=1) ) + "
-"0","        geom_line(aes(y=returns$PG, col='PG'), size = 1, color='blueviolet') + "
-"0","        labs(x = ""Time"", y = ""Daily return series"")"
